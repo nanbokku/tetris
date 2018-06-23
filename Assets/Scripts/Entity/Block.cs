@@ -29,6 +29,7 @@ public class Block : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
+        // TODO: 追加ルール：遊び時間の実装
         if (col.gameObject.tag != bottomTag && col.gameObject.tag != blockTag) return;
         if (col.transform.parent == this.transform.parent) return;
 

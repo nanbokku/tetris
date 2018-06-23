@@ -27,10 +27,15 @@ namespace Tetris
             Left = -1
         }
 
+        public enum BlockRotation
+        {
+            Normal, Right, Reverse, Left
+        }
+
         public static readonly GameObject[] TetriminoPrefab =
         {
-            //Resources.Load<GameObject>("Block/IBlock"),
-            Resources.Load<GameObject>("Block/OBlock"),
+            Resources.Load<GameObject>("Block/IBlock"),
+            //Resources.Load<GameObject>("Block/OBlock"),
             //Resources.Load<GameObject>("Block/LBlock"),
             //Resources.Load<GameObject>("Block/JBlock"),
             //Resources.Load<GameObject>("Block/SBlock"),

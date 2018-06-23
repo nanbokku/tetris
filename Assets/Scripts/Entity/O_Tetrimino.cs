@@ -5,37 +5,10 @@ using Data = Tetris.TetrisData;
 
 public class O_Tetrimino : Tetrimino
 {
-    private static readonly Vector3 standbyPosition = new Vector3(5f, 21f, 0);
-    private static readonly Vector3 startPosition = new Vector3(5f, 19f, 0);
+    protected override Data.BlockType BlockType { get { return Data.BlockType.O; } }
+    protected override Vector3 StandbyPosition { get { return new Vector3(5f, 20f, 0); } }
+    protected override Vector3 StartPosition { get { return new Vector3(5f, 18f, 0); } }
 
-
-    protected override void Init()
-    {
-        foreach (var block in Blocks)
-        {
-            block.Init(Data.BlockType.O);
-        }
-    }
-
-    public override void Standby()
-    {
-        transform.position = standbyPosition;
-
-        foreach (var block in Blocks)
-        {
-            block.Collider.enabled = false;
-        }
-    }
-
-    public override void Launch()
-    {
-        transform.position = startPosition;
-
-        foreach (var block in Blocks)
-        {
-            block.Collider.enabled = true;
-        }
-    }
 
     public override void Translate(Data.DirectionX direction)
     {

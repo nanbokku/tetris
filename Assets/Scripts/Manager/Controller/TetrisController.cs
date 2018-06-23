@@ -58,6 +58,16 @@ public class TetrisController : MonoBehaviour
 
             current.Translate(dir);
         };
+        player.OnLanded = () =>
+        {
+            var ray = new Ray(current.transform.position, Vector3.down);
+            RaycastHit hit;
+            if (!Physics.Raycast(ray, out hit, Mathf.Infinity)) return;
+
+            var pos = current.transform.position;
+            pos.y = current.transform.position.y - hit.distance;
+            current.transform.position = pos;
+        };
     }
 
     private void Next()
@@ -68,8 +78,9 @@ public class TetrisController : MonoBehaviour
     private Tetrimino CreateTetrimino()
     {
         var idx = UnityEngine.Random.Range(0, Data.TetriminoPrefab.Length);
-        var tetrimino = GameObject.Instantiate(Data.TetriminoPrefab[idx]).GetComponent<Tetrimino>();
+        var tetrimino = GameObject.Instantiate(Data.TetriminoPrefab[idx]);
+        var tet = tetrimino.GetComponent<Tetrimino>();
 
-        return tetrimino;
+        return tet;
     }
 }

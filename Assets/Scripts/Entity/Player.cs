@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     public Action<Data.DirectionX> OnTranslated { get; set; }
     public Action<Data.DirectionX> OnRotated { get; set; }
+    public Action OnLanded { get; set; }
 
 
     void Update()
@@ -25,6 +26,10 @@ public class Player : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             OnRotated(Data.DirectionX.Left);
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            OnLanded();
         }
     }
 }

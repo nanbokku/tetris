@@ -9,6 +9,10 @@ public abstract class Tetrimino : MonoBehaviour
     public Block[] Blocks { get; private set; }
     public Action<Block[]> OnLand { get; set; }
 
+    protected abstract Data.BlockType BlockType { get; }
+    protected abstract Vector3 StandbyPosition { get; }
+    protected abstract Vector3 StartPosition { get; }
+
     private bool isLanded = false;
 
     protected static readonly Vector3 BlockInterval = new Vector3(1.0f, 1.0f, 0f);
@@ -38,6 +42,26 @@ public abstract class Tetrimino : MonoBehaviour
         Init();
     }
 
+    public void Standby()
+    {
+        transform.position = StandbyPosition;
+
+        foreach (var block in Blocks)
+        {
+            block.Collider.enabled = false;
+        }
+    }
+
+    public void Launch()
+    {
+        transform.position = StartPosition;
+
+        foreach (var block in Blocks)
+        {
+            block.Collider.enabled = true;
+        }
+    }
+
     public void Drop()
     {
         transform.Translate(0f, -BlockInterval.y, 0f);
@@ -48,10 +72,14 @@ public abstract class Tetrimino : MonoBehaviour
         }
     }
 
-    public abstract void Standby();
-    public abstract void Launch();
     public abstract void Translate(Data.DirectionX direction);
     public abstract void Rotate(Data.DirectionX direction);
 
-    protected abstract void Init();
+    private void Init()
+    {
+        foreach (var block in Blocks)
+        {
+            block.Init(BlockType);
+        }
+    }
 }
