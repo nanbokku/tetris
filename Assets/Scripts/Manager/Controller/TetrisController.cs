@@ -60,13 +60,14 @@ public class TetrisController : MonoBehaviour
         };
         player.OnLanded = () =>
         {
-            var ray = new Ray(current.transform.position, Vector3.down);
-            RaycastHit hit;
-            if (!Physics.Raycast(ray, out hit, Mathf.Infinity)) return;
+            var hit = current.BottomRaycastHit();
+            if (hit.distance == Mathf.Infinity) return;
 
             var pos = current.transform.position;
             pos.y = current.transform.position.y - hit.distance;
-            current.transform.position = pos;
+
+            var minoH = current.Blocks[0].transform.localScale.y / 2;
+            current.transform.position = pos + new Vector3(0, minoH, 0);
         };
     }
 

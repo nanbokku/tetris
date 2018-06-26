@@ -12,6 +12,7 @@ public abstract class Tetrimino : MonoBehaviour
     protected abstract Data.BlockType BlockType { get; }
     protected abstract Vector3 StandbyPosition { get; }
     protected abstract Vector3 StartPosition { get; }
+    protected abstract List<Block> BottomBlocks { get; }
 
     private bool isLanded = false;
 
@@ -37,11 +38,12 @@ public abstract class Tetrimino : MonoBehaviour
         isLanded = false;
     }
 
-    void Start()
+    protected virtual void Start()
     {
         Init();
     }
 
+    // スタンバイ状態
     public void Standby()
     {
         transform.position = StandbyPosition;
@@ -52,6 +54,7 @@ public abstract class Tetrimino : MonoBehaviour
         }
     }
 
+    // 操作開始状態
     public void Launch()
     {
         transform.position = StartPosition;
@@ -70,6 +73,29 @@ public abstract class Tetrimino : MonoBehaviour
             var pos = block.Position;
             block.Position = new Data.BlockPosition(pos.x, pos.y - 1);
         }
+    }
+
+    // 底辺ブロックから下方向にRayを飛ばす．最も近くのRaycastHitを返す．
+    public RaycastHit BottomRaycastHit()
+    {
+        RaycastHit nearest = new RaycastHit();
+        nearest.distance = Mathf.Infinity;
+
+        foreach (var block in BottomBlocks)
+        {
+            var ray = new Ray(block.transform.position, Vector3.down);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity))
+            {
+                if (hit.distance < nearest.distance)
+                {
+                    nearest = hit;
+                }
+            }
+        }
+
+        return nearest;
     }
 
     public abstract void Translate(Data.DirectionX direction);
