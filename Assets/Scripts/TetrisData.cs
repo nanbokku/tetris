@@ -36,7 +36,7 @@ namespace Tetris
         {
             Resources.Load<GameObject>("Block/IBlock"),
             Resources.Load<GameObject>("Block/OBlock"),
-            //Resources.Load<GameObject>("Block/LBlock"),
+            Resources.Load<GameObject>("Block/LBlock"),
             Resources.Load<GameObject>("Block/JBlock"),
             //Resources.Load<GameObject>("Block/SBlock"),
             //Resources.Load<GameObject>("Block/ZBlock"),
