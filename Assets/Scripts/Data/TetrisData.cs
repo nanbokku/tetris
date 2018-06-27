@@ -42,5 +42,19 @@ namespace Tetris
             //Resources.Load<GameObject>("Block/ZBlock"),
             //Resources.Load<GameObject>("Block/TBlock")
         };
+
+        public struct TetrisSaveData
+        {
+            public char current;
+            public char next;
+            public ulong[] bitboard;
+
+            public TetrisSaveData(char current, char next, ulong[] bitboard)
+            {
+                this.current = current;
+                this.next = next;
+                this.bitboard = bitboard;
+            }
+        }
     }
 }

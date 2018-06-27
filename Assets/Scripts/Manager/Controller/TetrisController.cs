@@ -30,21 +30,15 @@ public class TetrisController : MonoBehaviour
 
     public void Init()
     {
-        current = CreateTetrimino();
-        next = CreateTetrimino();
         time = 0.0f;
         oldTime = Time.time;
         player = MonoBehaviour.FindObjectOfType<Player>();
 
+        current = CreateTetrimino();
+        next = CreateTetrimino();
+
         current.Launch();
         next.Standby();
-
-        // Tetriminoのイベント登録
-        current.OnLand = (blocks) =>
-        {
-            current = null;
-            Next();
-        };
 
         player.OnRotated = (dir) =>
         {
@@ -73,15 +67,25 @@ public class TetrisController : MonoBehaviour
 
     private void Next()
     {
+        current = next;
+        next = CreateTetrimino();
 
+        current.Launch();
+        next.Standby();
     }
 
     private Tetrimino CreateTetrimino()
     {
         var idx = UnityEngine.Random.Range(0, Data.TetriminoPrefab.Length);
-        var tetrimino = GameObject.Instantiate(Data.TetriminoPrefab[idx]);
-        var tet = tetrimino.GetComponent<Tetrimino>();
+        var tetrimino = GameObject.Instantiate(Data.TetriminoPrefab[idx]).GetComponent<Tetrimino>();
 
-        return tet;
+        // Tetriminoのイベント登録
+        tetrimino.OnLand = (blocks) =>
+        {
+            current = null;
+            Next();
+        };
+
+        return tetrimino;
     }
 }
