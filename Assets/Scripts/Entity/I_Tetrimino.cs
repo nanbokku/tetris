@@ -41,6 +41,7 @@ public class I_Tetrimino : Tetrimino
         bottomBlocks = new List<List<Block>>();
         var blocks = new List<Block>();
 
+        // 通常状態の底辺ブロック
         foreach (var block in Blocks)
         {
             blocks.Add(block);
@@ -49,9 +50,9 @@ public class I_Tetrimino : Tetrimino
         bottomBlocks.Add(blocks);
 
         // 右回転したときの底辺ブロック
-        var bottom = new List<Block>();
-        bottom.Add(Blocks[3]);
-        bottomBlocks.Add(bottom);
+        blocks = new List<Block>();
+        blocks.Add(Blocks[3]);
+        bottomBlocks.Add(blocks);
     }
 
     public override void Translate(Data.DirectionX direction)
@@ -65,6 +66,12 @@ public class I_Tetrimino : Tetrimino
             || rotation == Data.BlockRotation.Right && transform.position.x <= 0f && direction < 0) return;
 
         transform.Translate((int)direction * BlockInterval.x, 0f, 0f);
+
+        foreach (var block in Blocks)
+        {
+            var pos = block.Position;
+            block.Position = new Data.BlockPosition(pos.x + (int)direction, pos.y);
+        }
     }
 
     public override void Rotate(Data.DirectionX direction)
@@ -74,9 +81,8 @@ public class I_Tetrimino : Tetrimino
             && (transform.position.x < 2f || transform.position.x > 8f)) return;
 
         rotation = rotation == Data.BlockRotation.Normal ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
-        int idx = 0;
-        var bottom = transform;
 
+        int idx = 0;
         foreach (var block in Blocks)
         {
             block.transform.localPosition = rotPosition[(int)rotation, idx++];
