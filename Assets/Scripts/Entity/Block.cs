@@ -33,6 +33,13 @@ public class Block : MonoBehaviour
         if (col.gameObject.tag != bottomTag && col.gameObject.tag != blockTag) return;
         if (col.transform.parent == this.transform.parent) return;
 
+        // 真下に衝突判定があるのか判定
+        var ray = new Ray(transform.position, Vector3.down);
+        RaycastHit hit;
+        if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return;
+        if (hit.collider != col) return;
+
         OnLand();
+
     }
 }
