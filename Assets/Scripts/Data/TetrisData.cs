@@ -4,6 +4,9 @@ namespace Tetris
 {
     public class TetrisData
     {
+        public const int Rows = 20;
+        public const int Columns = 10;
+
         public enum BlockType
         {
             I, O, L, J, S, Z, T,
@@ -45,11 +48,11 @@ namespace Tetris
 
         public struct TetrisSaveData
         {
-            public char current;
-            public char next;
-            public ulong[] bitboard;
+            public byte current;
+            public byte next;
+            public ushort[] bitboard;
 
-            public TetrisSaveData(char current, char next, ulong[] bitboard)
+            public TetrisSaveData(byte current, byte next, ushort[] bitboard)
             {
                 this.current = current;
                 this.next = next;

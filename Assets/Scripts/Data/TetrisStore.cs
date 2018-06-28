@@ -8,26 +8,27 @@ namespace Tetris
         public TetrisStore()
         {
             // 初期化
+            current = next = 0x00;
+            BitBoard = new ushort[TetrisData.Rows];
         }
 
-        public char Current { get; private set; }
-        public char Next { get; private set; }
-        public ulong[] BitBoard { get; private set; }
+        public ushort[] BitBoard { get; private set; }
+
+        private byte current;
+        private byte next;
 
 
         public void SetTetrisData(TetrisData.TetrisSaveData data)
         {
-
+            this.current = data.current;
+            this.next = data.next;
+            this.BitBoard = data.bitboard;
         }
 
+        // TODO: LoadTetrisData
         public TetrisData.TetrisSaveData GetTetrisData()
         {
-            return new TetrisData.TetrisSaveData();
-        }
-
-        public void AddBlocks(List<Block> blocks)
-        {
-
+            return new TetrisData.TetrisSaveData(this.current, this.next, this.BitBoard);
         }
     }
 }
