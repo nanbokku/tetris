@@ -7,6 +7,8 @@ namespace Tetris
         public const int Rows = 20;
         public const int Columns = 10;
 
+        public static readonly Vector3 BlockInterval = new Vector3(1.0f, 1.0f, 0f);
+
         public enum BlockType
         {
             I, O, L, J, S, Z, T,
@@ -51,12 +53,14 @@ namespace Tetris
             public byte current;
             public byte next;
             public ushort[] bitboard;
+            public byte[] typeboard;
 
-            public TetrisSaveData(byte current, byte next, ushort[] bitboard)
+            public TetrisSaveData(byte current, byte next, ushort[] bitboard, byte[] typeboard)
             {
                 this.current = current;
                 this.next = next;
                 this.bitboard = bitboard;
+                this.typeboard = typeboard;
             }
         }
     }

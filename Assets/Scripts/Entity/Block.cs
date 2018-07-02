@@ -12,7 +12,6 @@ public class Block : MonoBehaviour
 
     public Action OnLand { get; set; }
 
-    private static readonly Vector3 origin = new Vector3(0.5f, 0.5f, -0.5f);
     private const string bottomTag = "BottomFrame";
     private const string blockTag = "Block";
 
@@ -22,9 +21,10 @@ public class Block : MonoBehaviour
         this.Collider = GetComponent<Collider>();
     }
 
-    public void Init(Data.BlockType type)
+    public void Init(Data.BlockType type, Data.BlockPosition position)
     {
         this.Type = type;
+        this.Position = position;
     }
 
     void OnTriggerEnter(Collider col)
