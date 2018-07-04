@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Tetris;
 using Data = Tetris.TetrisData;
 
 public class TetrisController : MonoBehaviour
@@ -25,18 +26,21 @@ public class TetrisController : MonoBehaviour
         if (Time.time - oldTime < interval) return;
 
         oldTime = Time.time;
-        current.Drop();
+        current.Drop(1);
     }
 
     public void Init()
     {
+        blocks = new Block[Data.Columns * Data.Rows];
         time = 0.0f;
         oldTime = Time.time;
         player = MonoBehaviour.FindObjectOfType<Player>();
 
+        // Tetriminoの生成
         current = CreateTetrimino();
         next = CreateTetrimino();
 
+        // 各Tetriminoの初期化
         current.Launch();
         next.Standby();
 
@@ -52,24 +56,50 @@ public class TetrisController : MonoBehaviour
 
             current.Translate(dir);
         };
-        player.OnLanded = () =>
+        player.OnWarped = () =>
         {
+            // 下方向にあるオブジェクトを取得
             var hit = current.BottomRaycastHit();
             if (hit.distance == Mathf.Infinity) return;
 
-            var pos = current.transform.position;
-            pos.y = current.transform.position.y - hit.distance;
-
-            var minoH = current.Blocks[0].transform.localScale.y / 2;
-            current.transform.position = pos + new Vector3(0, minoH, 0);
+            // 一気に下に下がる
+            var down = (int)(hit.distance / Data.BlockInterval.y);
+            current.Drop(down);
         };
     }
 
     private void Next()
     {
+        var bitboard = StoreManager.Instance.TetrisStore.BitBoard;
+        var typeboard = StoreManager.Instance.TetrisStore.TypeBoard;
+
+        // 置かれたBlockのビットを立てる
+        foreach (var block in current.Blocks)
+        {
+            bitboard[block.Position.y] |= (ushort)(0x8000 >> block.Position.x);
+            typeboard[block.Position.y * Data.Columns + block.Position.x] = (byte)(0x01 << (int)block.Type);
+
+            // 置いたブロックを保存
+            blocks[block.Position.y * Data.Columns + block.Position.x] = block;
+        }
+
+        // 横列のチェック
+        var rmRow = CheckLine(bitboard, typeboard);    // 消す行のリスト
+
+        // ブロックの状態を更新
+        UpdateView(rmRow);
+
+        // // ビットボードの更新
+        // DownBitLine(ref bitboard, ref typeboard);
+
+        // 現在，次のテトリミノの更新
         current = next;
         next = CreateTetrimino();
 
+        // 現在の状態を保存
+        SaveCurrentData(bitboard, typeboard);
+
+        // 次の操作へ
         current.Launch();
         next.Standby();
     }
@@ -82,10 +112,129 @@ public class TetrisController : MonoBehaviour
         // Tetriminoのイベント登録
         tetrimino.OnLand = (blocks) =>
         {
-            current = null;
+            // 親子関係の解消
+            foreach (var block in blocks)
+            {
+                block.transform.parent = null;
+            }
+
+            // テトリミノの削除
+            Destroy(tetrimino.gameObject);
+
             Next();
         };
 
         return tetrimino;
+    }
+
+    private void SaveCurrentData(ushort[] bitboard, byte[] typeboard)
+    {
+        byte crntMino = (byte)(0x01 << (int)this.current.BlockType);
+        byte nextMino = (byte)(0x01 << (int)this.next.BlockType);
+        var data = new TetrisData.TetrisSaveData(crntMino, nextMino, bitboard, typeboard);
+
+        StoreManager.Instance.TetrisStore.SetTetrisData(data);
+    }
+
+    // ブロックの状態を更新
+    private void UpdateView(List<int> rmRow)
+    {
+        // 消す列がなければ終了
+        if (rmRow.Count == 0) return;
+
+        foreach (var row in rmRow)
+        {
+            // 揃った列のブロックを削除
+            for (var col = 0; col < Data.Columns; col++)
+            {
+                Destroy(blocks[row * Data.Columns + col].gameObject);
+            }
+        }
+
+        // 消した列を下に詰める
+        for (var row = rmRow[0] + 1; row < Data.Rows; row++)  // 消した列の一つ上から順に
+        {
+            for (var col = 0; col < Data.Columns; col++)
+            {
+                var block = blocks[row * Data.Columns + col];
+
+                // 詰めるブロックがなければ次の列へ
+                if (block == null) continue;
+
+                // FIXME: 消せる列が飛び飛びのときに対応できていない
+                blocks[(row - rmRow.Count) * Data.Columns + col] = block;
+
+                // 位置を詰める
+                var pos = block.transform.position;
+                pos.y -= Data.BlockInterval.y * rmRow.Count;
+                block.transform.position = pos;
+
+                block.Position = new Data.BlockPosition(col, row - rmRow.Count);
+            }
+        }
+    }
+
+    // 横列をチェックし，消去する列番号を返す
+    private List<int> CheckLine(ushort[] bitboard, byte[] typeboard)
+    {
+        var rmRow = new List<int>();
+        ushort bits = 0xffc0;  // 11111111 11000000
+
+        for (var rows = 0; rows < bitboard.Length; rows++)
+        {
+            // 横列が揃っているかチェック
+            if ((bitboard[rows] & bits) == bits)
+            {
+                rmRow.Add(rows);
+            }
+        }
+
+        if (rmRow.Count != 0)
+        {
+            DownBitLine(ref bitboard, ref typeboard);
+        }
+
+        return rmRow;
+    }
+
+    // 最下行から隙間の無いようににビットボードを詰める
+    private void DownBitLine(ref ushort[] bitboard, ref byte[] typeboard)
+    {
+        ushort bits = 0xffc0;   // 11111111 11000000
+        for (var rows = 0; rows < bitboard.Length; rows++)
+        {
+            // 横列が揃っていなければ次の列へ
+            if ((bitboard[rows] & bits) != bits) continue;
+
+            // 消せる列が何連続しているか探索する
+            var continuation = 1;
+            for (var uprow = rows + 1; uprow < bitboard.Length; uprow++)
+            {
+                if ((bitboard[uprow] & bits) != bits) break;
+
+                continuation++;
+            }
+
+            // 下へ詰めていく
+            for (var crntrow = rows; crntrow + continuation < bitboard.Length; crntrow++)
+            {
+                bitboard[crntrow] = bitboard[crntrow + continuation];
+                for (var col = 0; col < Data.Columns; col++)
+                {
+                    typeboard[crntrow * Data.Columns + col] = typeboard[(crntrow + continuation) * Data.Columns + col];
+                }
+            }
+        }
+    }
+
+    // 16bit用のビットカウント
+    private int CountBits(ushort bits)
+    {
+        bits = (ushort)((bits & 0x5555) + ((bits & 0xaaaa) >> 1));
+        bits = (ushort)((bits & 0x3333) + ((bits & 0xcccc) >> 2));
+        bits = (ushort)((bits & 0x0f0f) + ((bits & 0xf0f0) >> 4));
+        bits = (ushort)((bits & 0x00ff) + ((bits & 0xff00) >> 8));
+
+        return (int)bits;
     }
 }
