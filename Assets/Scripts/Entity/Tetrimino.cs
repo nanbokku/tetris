@@ -9,14 +9,13 @@ public abstract class Tetrimino : MonoBehaviour
     public Block[] Blocks { get; private set; }
     public Action<Block[]> OnLand { get; set; }
 
-    protected abstract Data.BlockType BlockType { get; }
+    public abstract Data.BlockType BlockType { get; }
+
     protected abstract Vector3 StandbyPosition { get; }
     protected abstract Vector3 StartPosition { get; }
     protected abstract List<Block> BottomBlocks { get; }
 
     private bool isLanded = false;
-
-    protected static readonly Vector3 BlockInterval = new Vector3(1.0f, 1.0f, 0f);
 
 
     protected virtual void Awake()
@@ -65,14 +64,17 @@ public abstract class Tetrimino : MonoBehaviour
         }
     }
 
-    public void Drop()
+    public void Drop(int blockNum)
     {
-        transform.Translate(0f, -BlockInterval.y, 0f);
+        transform.Translate(0f, -Data.BlockInterval.y * blockNum, 0f);
         foreach (var block in Blocks)
         {
             var pos = block.Position;
-            block.Position = new Data.BlockPosition(pos.x, pos.y - 1);
+            block.Position = new Data.BlockPosition(pos.x, pos.y - blockNum);
+
+            Debug.Log("(" + block.Position.x + ", " + block.Position.y + ")");
         }
+        Debug.Log("");
     }
 
     // 底辺ブロックから下方向にRayを飛ばす．最も近くのRaycastHitを返す．
@@ -100,12 +102,5 @@ public abstract class Tetrimino : MonoBehaviour
 
     public abstract void Translate(Data.DirectionX direction);
     public abstract void Rotate(Data.DirectionX direction);
-
-    private void Init()
-    {
-        foreach (var block in Blocks)
-        {
-            block.Init(BlockType);
-        }
-    }
+    protected abstract void Init();
 }

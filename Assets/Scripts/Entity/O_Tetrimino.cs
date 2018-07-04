@@ -5,7 +5,8 @@ using Data = Tetris.TetrisData;
 
 public class O_Tetrimino : Tetrimino
 {
-    protected override Data.BlockType BlockType { get { return Data.BlockType.O; } }
+    public override Data.BlockType BlockType { get { return Data.BlockType.O; } }
+
     protected override Vector3 StandbyPosition { get { return new Vector3(5f, 21f, 0); } }
     protected override Vector3 StartPosition { get { return new Vector3(5f, 19f, 0); } }
     protected override List<Block> BottomBlocks { get { return bottomBlocks; } }
@@ -34,7 +35,7 @@ public class O_Tetrimino : Tetrimino
         // 左端に達したとき右入力しか受け付けない
         if (transform.position.x <= 1f && direction < 0) return;
 
-        transform.Translate((int)direction * BlockInterval.x, 0f, 0f);
+        transform.Translate((int)direction * Data.BlockInterval.x, 0f, 0f);
 
         foreach (var block in Blocks)
         {
@@ -45,5 +46,14 @@ public class O_Tetrimino : Tetrimino
 
     public override void Rotate(Data.DirectionX direction)
     {
+    }
+
+    protected override void Init()
+    {
+        var iniPos = new Vector2Int[] { new Vector2Int(4, 19), new Vector2Int(5, 19), new Vector2Int(4, 18), new Vector2Int(5, 18) };
+        for (var i = 0; i < Blocks.Length; i++)
+        {
+            Blocks[i].Init(BlockType, new Data.BlockPosition(iniPos[i].x, iniPos[i].y));
+        }
     }
 }

@@ -5,7 +5,8 @@ using Data = Tetris.TetrisData;
 
 public class I_Tetrimino : Tetrimino
 {
-    protected override Data.BlockType BlockType { get { return Data.BlockType.I; } }
+    public override Data.BlockType BlockType { get { return Data.BlockType.I; } }
+
     protected override Vector3 StandbyPosition { get { return new Vector3(5f, 21f, 0f); } }
     protected override Vector3 StartPosition { get { return new Vector3(5f, 19f, 0f); } }
     protected override List<Block> BottomBlocks
@@ -26,7 +27,7 @@ public class I_Tetrimino : Tetrimino
     private Data.BlockRotation rotation = Data.BlockRotation.Normal;
     private List<List<Block>> bottomBlocks;
 
-    private static readonly Vector3[,] rotPosition =
+    private static readonly Vector3[,] rotCoodinate =
     {
         {new Vector3(-1.5f, 0.5f, -0.5f), new Vector3(-0.5f, 0.5f, -0.5f), new Vector3(0.5f, 0.5f, -0.5f), new Vector3(1.5f, 0.5f, -0.5f)},
         {new Vector3(0.5f, 1.5f, -0.5f), new Vector3(0.5f, 0.5f, -0.5f), new Vector3(0.5f, -0.5f, -0.5f), new Vector3(0.5f, -1.5f, -0.5f)}
@@ -65,7 +66,7 @@ public class I_Tetrimino : Tetrimino
         if (rotation == Data.BlockRotation.Normal && transform.position.x <= 2f && direction < 0
             || rotation == Data.BlockRotation.Right && transform.position.x <= 0f && direction < 0) return;
 
-        transform.Translate((int)direction * BlockInterval.x, 0f, 0f);
+        transform.Translate((int)direction * Data.BlockInterval.x, 0f, 0f);
 
         foreach (var block in Blocks)
         {
@@ -80,12 +81,28 @@ public class I_Tetrimino : Tetrimino
         if (rotation == Data.BlockRotation.Right
             && (transform.position.x < 2f || transform.position.x > 8f)) return;
 
+        var crntRot = rotation;
+
         rotation = rotation == Data.BlockRotation.Normal ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
 
         int idx = 0;
         foreach (var block in Blocks)
         {
-            block.transform.localPosition = rotPosition[(int)rotation, idx++];
+            block.transform.localPosition = rotCoodinate[(int)rotation, idx];
+
+            var diff = rotCoodinate[(int)rotation, idx] - rotCoodinate[(int)crntRot, idx];
+            block.Position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
+
+            idx++;
+        }
+    }
+
+    protected override void Init()
+    {
+        var pos = 3;
+        foreach (var block in Blocks)
+        {
+            block.Init(BlockType, new Data.BlockPosition(pos++, 19));
         }
     }
 }

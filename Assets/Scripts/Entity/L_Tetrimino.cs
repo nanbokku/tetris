@@ -5,7 +5,8 @@ using Data = Tetris.TetrisData;
 
 public class L_Tetrimino : Tetrimino
 {
-    protected override Data.BlockType BlockType { get { return Data.BlockType.L; } }
+    public override Data.BlockType BlockType { get { return Data.BlockType.L; } }
+
     protected override Vector3 StandbyPosition { get { return new Vector3(4.5f, 21.5f, 0f); } }
     protected override Vector3 StartPosition { get { return new Vector3(4.5f, 19.5f, 0f); } }
     protected override List<Block> BottomBlocks
@@ -74,7 +75,7 @@ public class L_Tetrimino : Tetrimino
             if (rotation == Data.BlockRotation.Right && transform.position.x >= 9.5f) return;
         }
 
-        transform.Translate((int)direction * BlockInterval.x, 0f, 0f);
+        transform.Translate((int)direction * Data.BlockInterval.x, 0f, 0f);
 
         foreach (var block in Blocks)
         {
@@ -87,6 +88,8 @@ public class L_Tetrimino : Tetrimino
     {
         // 回転制限
         if (transform.position.x < 1.0f || transform.position.x > 9.0f) return;
+
+        var crntRot = rotation;
 
         // 左向きの状態で右回転したとき，Normalに戻す
         if (direction == Data.DirectionX.Right && rotation == Data.BlockRotation.Left)
@@ -106,7 +109,22 @@ public class L_Tetrimino : Tetrimino
         var idx = 0;
         foreach (var block in Blocks)
         {
-            block.transform.localPosition = rotPosition[(int)rotation, idx++];
+            block.transform.localPosition = rotPosition[(int)rotation, idx];
+
+            // Positionの更新
+            var diff = rotPosition[(int)rotation, idx] - rotPosition[(int)crntRot, idx];
+            block.Position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
+
+            idx++;
+        }
+    }
+
+    protected override void Init()
+    {
+        var iniPos = new Vector2Int[] { new Vector2Int(3, 18), new Vector2Int(4, 19), new Vector2Int(5, 19), new Vector2Int(3, 19) };
+        for (var i = 0; i < Blocks.Length; i++)
+        {
+            Blocks[i].Init(BlockType, new Data.BlockPosition(iniPos[i].x, iniPos[i].y));
         }
     }
 }
