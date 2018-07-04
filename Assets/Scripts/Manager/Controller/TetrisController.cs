@@ -26,6 +26,8 @@ public class TetrisController : MonoBehaviour
         if (Time.time - oldTime < interval) return;
 
         oldTime = Time.time;
+
+        // 1マスずつ下がる
         current.Drop(1);
     }
 
@@ -152,24 +154,39 @@ public class TetrisController : MonoBehaviour
         }
 
         // 消した列を下に詰める
-        for (var row = rmRow[0] + 1; row < Data.Rows; row++)  // 消した列の一つ上から順に
+        for (var row = rmRow.Count - 1; row >= 0; row--)    // 上から下へ順に
         {
-            for (var col = 0; col < Data.Columns; col++)
+            // 空行が下にどれだけ連続しているか探索
+            var continuation = 1;
+            for (var diff = 1; row - diff >= 0; diff++)
             {
-                var block = blocks[row * Data.Columns + col];
+                if (rmRow[row] - rmRow[row - diff] != 1) break;
 
-                // 詰めるブロックがなければ次の列へ
-                if (block == null) continue;
+                continuation++;
+            }
 
-                // FIXME: 消せる列が飛び飛びのときに対応できていない
-                blocks[(row - rmRow.Count) * Data.Columns + col] = block;
+            row = row - continuation + 1;
 
-                // 位置を詰める
-                var pos = block.transform.position;
-                pos.y -= Data.BlockInterval.y * rmRow.Count;
-                block.transform.position = pos;
+            // 下に詰めていく
+            // FIXME: 何かの拍子にずれる？そろってるはずだけど消えないときがある
+            for (var crntrow = rmRow[row]; crntrow + continuation < Data.Rows; crntrow++)
+            {
+                for (var col = 0; col < Data.Columns; col++)
+                {
+                    var translated = blocks[(crntrow + continuation) * Data.Columns + col];
 
-                block.Position = new Data.BlockPosition(col, row - rmRow.Count);
+                    blocks[crntrow * Data.Columns + col] = translated;
+
+                    // 詰めるブロックがなければ次へ
+                    if (translated == null) continue;
+
+                    // positionの更新
+                    var pos = translated.transform.position;
+                    pos.y -= Data.BlockInterval.y * continuation;
+                    translated.transform.position = pos;
+
+                    translated.Position = new Data.BlockPosition(col, crntrow);
+                }
             }
         }
     }
