@@ -3,39 +3,11 @@ using System.Collections.Generic;
 
 namespace Store
 {
-    public class TetrisStore : Subject
+    public class BoardStore
     {
-        public TetrisStore()
+        public BoardStore()
         {
             Init();
-        }
-
-        private int level;
-        public int Level
-        {
-            get
-            {
-                return level;
-            }
-            set
-            {
-                level = value;
-                Notify(level);
-            }
-        }
-
-        private int score;
-        public int Score
-        {
-            get
-            {
-                return score;
-            }
-            set
-            {
-                score = value;
-                Notify(score);
-            }
         }
 
         public ushort[] BitBoard { get; private set; }
@@ -49,9 +21,6 @@ namespace Store
         public void Init()
         {
             // 初期化
-            level = 0;
-            score = 0;
-
             current = next = 0x00;
             BitBoard = new ushort[TetrisData.Rows];
             TypeBoard = new byte[TetrisData.Rows * TetrisData.Columns];
