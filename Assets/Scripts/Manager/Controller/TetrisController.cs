@@ -14,8 +14,11 @@ public class TetrisController : MonoBehaviour
     private Tetrimino current, next;
     private Player player;
 
-    private float interval = 1f; //仮
+    private float interval = InitDropInterval;
     private float oldTime = 0;
+
+    private const float InitDropInterval = 1.5f;
+    private const float LevelUpTimeInterval = 10.0f;
 
 
     void Update()
@@ -29,6 +32,9 @@ public class TetrisController : MonoBehaviour
 
         // 1マスずつ下がる
         current.Drop(1);
+
+        // テトリミノの落ちるスピードを更新する
+        UpdateDropInterval();
     }
 
     public void Init()
@@ -52,12 +58,15 @@ public class TetrisController : MonoBehaviour
 
             current.Rotate(dir);
         };
+
         player.OnTranslated = (dir) =>
         {
             if (current == null) return;
 
             current.Translate(dir);
         };
+
+        // FIXME: ワープとUpdate.Drop()の呼ばれるタイミングによって，ブロックの着地地点がおかしくなる
         player.OnWarped = () =>
         {
             if (current == null) return;
@@ -74,8 +83,8 @@ public class TetrisController : MonoBehaviour
 
     private void Next()
     {
-        var bitboard = StoreManager.Instance.TetrisStore.BitBoard;
-        var typeboard = StoreManager.Instance.TetrisStore.TypeBoard;
+        var bitboard = StoreManager.Instance.BoardStore.BitBoard;
+        var typeboard = StoreManager.Instance.BoardStore.TypeBoard;
 
         // 置かれたBlockのビットを立てる
         foreach (var block in current.Blocks)
@@ -104,7 +113,7 @@ public class TetrisController : MonoBehaviour
         next = CreateTetrimino();
 
         // 現在の状態を保存
-        SaveCurrentData(bitboard, typeboard);
+        TetrisBitBoard.SaveCurrentData(current, next, bitboard, typeboard);
 
         // 次の操作へ
         current.Launch();
@@ -146,15 +155,6 @@ public class TetrisController : MonoBehaviour
         };
 
         return tetrimino;
-    }
-
-    private void SaveCurrentData(ushort[] bitboard, byte[] typeboard)
-    {
-        byte crntMino = (byte)(0x01 << (int)this.current.BlockType);
-        byte nextMino = (byte)(0x01 << (int)this.next.BlockType);
-        var data = new TetrisData.TetrisSaveData(crntMino, nextMino, bitboard, typeboard);
-
-        StoreManager.Instance.TetrisStore.SetTetrisData(data);
     }
 
     // ブロックの状態を更新
@@ -208,5 +208,16 @@ public class TetrisController : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void UpdateDropInterval()
+    {
+        var level = (int)(time / LevelUpTimeInterval);
+        if (StoreManager.Instance.ScoreStore.Level < level)
+        {
+            StoreManager.Instance.ScoreStore.Level = level;
+        }
+
+        interval = InitDropInterval - StoreManager.Instance.ScoreStore.Level * 0.05f;
     }
 }

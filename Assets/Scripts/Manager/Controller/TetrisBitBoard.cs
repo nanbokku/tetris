@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using Store;
 
+/// <summary>
+/// Tetrisのビットボードに関する操作を行うクラス
+/// </summary>
 public static class TetrisBitBoard
 {
     // 置かれたBlockのビットを立てる
@@ -37,8 +40,17 @@ public static class TetrisBitBoard
         return rmRow;
     }
 
+    public static void SaveCurrentData(Tetrimino current, Tetrimino next, ushort[] bitboard, byte[] typeboard)
+    {
+        byte crntMino = (byte)(0x01 << (int)current.BlockType);
+        byte nextMino = (byte)(0x01 << (int)next.BlockType);
+        var data = new TetrisData.TetrisSaveData(crntMino, nextMino, bitboard, typeboard);
+
+        StoreManager.Instance.BoardStore.SetTetrisData(data);
+    }
+
     // 最下行から隙間の無いようににビットボードを詰める
-    public static void DownBitLine(ref ushort[] bitboard, ref byte[] typeboard)
+    private static void DownBitLine(ref ushort[] bitboard, ref byte[] typeboard)
     {
         ushort bits = 0xffc0;   // 11111111 11000000
         for (var rows = 0; rows < bitboard.Length; rows++)
