@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Store;
 
 public interface IGameState
 {
@@ -39,18 +40,26 @@ public class GS_Title : IGameState
 
 public class GS_InGame : IGameState
 {
-    private TetrisController tController;
+    private TetrisController tetrisController;
+    private InGameUIControlller gameUIController;
 
     public void Enter()
     {
-        tController = MonoBehaviour.FindObjectOfType<TetrisController>();
+        tetrisController = MonoBehaviour.FindObjectOfType<TetrisController>();
+        gameUIController = MonoBehaviour.FindObjectOfType<InGameUIControlller>();
 
-        tController.Init();
+        tetrisController.Init();
+        gameUIController.Init(StoreManager.Instance);
 
-        tController.OnFinished = () =>
+        tetrisController.OnFinished = () =>
         {
             // データの保存
             GameManager.Instance.ChangeState(new GS_Result());
+        };
+
+        gameUIController.OnPauseBtnClicked = () =>
+        {
+            gameUIController.gameObject.SetActive(false);
         };
     }
 

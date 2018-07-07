@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Tetris;
-using Data = Tetris.TetrisData;
+using Store;
+using Data = Store.TetrisData;
 
 public class TetrisController : MonoBehaviour
 {
