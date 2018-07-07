@@ -27,15 +27,30 @@ public class GS_Title : IGameState
         // シーン遷移後にゲームステートを更新
         SceneManager.activeSceneChanged += (before, after) =>
         {
-            if (before == SceneManager.GetSceneByName("Title"))
-            {
-                GameManager.Instance.ChangeState(new GS_InGame());
-            }
+            OnSceneChanged(after);
         };
     }
 
     public void Execute() { }
-    public void Exit() { }
+
+    public void Exit()
+    {
+        // イベントの削除
+        uiController.OnStarted = null;
+
+        SceneManager.activeSceneChanged -= (before, after) =>
+        {
+            OnSceneChanged(after);
+        };
+    }
+
+    private void OnSceneChanged(Scene after)
+    {
+        if (after == SceneManager.GetSceneByName("Main"))
+        {
+            GameManager.Instance.ChangeState(new GS_InGame());
+        }
+    }
 }
 
 public class GS_InGame : IGameState
@@ -54,7 +69,13 @@ public class GS_InGame : IGameState
         tetrisController.OnFinished = () =>
         {
             // TODO: データの保存
-            GameManager.Instance.ChangeState(new GS_Result());
+            SceneManager.LoadScene("Result");
+        };
+
+        // シーン遷移後にステートを変更
+        SceneManager.activeSceneChanged += (before, after) =>
+        {
+            OnSceneChanged(after);
         };
 
         gameUIController.OnPaused = () =>
@@ -73,7 +94,28 @@ public class GS_InGame : IGameState
     }
 
     public void Execute() { }
-    public void Exit() { }
+
+    public void Exit()
+    {
+        // イベントの削除
+        tetrisController.OnFinished = null;
+        gameUIController.OnPaused = null;
+        gameUIController.OnInGamed = null;
+        gameUIController.OnTitled = null;
+
+        SceneManager.activeSceneChanged -= (before, after) =>
+        {
+            OnSceneChanged(after);
+        };
+    }
+
+    private void OnSceneChanged(Scene after)
+    {
+        if (after == SceneManager.GetSceneByName("Result"))
+        {
+            GameManager.Instance.ChangeState(new GS_Result());
+        }
+    }
 }
 
 public class GS_Pause : IGameState
