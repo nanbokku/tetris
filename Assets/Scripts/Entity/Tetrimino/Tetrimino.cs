@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Data = Tetris.TetrisData;
+using Data = Store.TetrisData;
 
 public abstract class Tetrimino : MonoBehaviour
 {

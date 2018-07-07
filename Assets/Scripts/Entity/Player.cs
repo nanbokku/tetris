@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using Data = Tetris.TetrisData;
+using Data = Store.TetrisData;
 
 public class Player : MonoBehaviour
 {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tetris
+namespace Store
 {
     public class TetrisData
     {

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Tetris
+namespace Store
 {
     public class StoreManager
     {
