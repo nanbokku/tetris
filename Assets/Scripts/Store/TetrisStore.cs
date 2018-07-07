@@ -10,6 +10,7 @@ namespace Store
             Init();
         }
 
+        private int level;
         public int Level
         {
             get
@@ -23,6 +24,7 @@ namespace Store
             }
         }
 
+        private int score;
         public int Score
         {
             get
@@ -38,9 +40,6 @@ namespace Store
 
         public ushort[] BitBoard { get; private set; }
         public byte[] TypeBoard { get; private set; }
-
-        private int level;
-        private int score;
 
         // BlockTypeの情報のみ
         private byte current;

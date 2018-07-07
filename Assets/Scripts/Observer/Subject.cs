@@ -20,7 +20,7 @@ public abstract class Subject
     {
         foreach (var observer in observers)
         {
-            observer.Update(value);
+            observer.ValueChanged(value);
         }
     }
 }

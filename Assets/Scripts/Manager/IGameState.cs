@@ -41,25 +41,34 @@ public class GS_Title : IGameState
 public class GS_InGame : IGameState
 {
     private TetrisController tetrisController;
-    private InGameUIControlller gameUIController;
+    private InGameUIController gameUIController;
 
     public void Enter()
     {
         tetrisController = MonoBehaviour.FindObjectOfType<TetrisController>();
-        gameUIController = MonoBehaviour.FindObjectOfType<InGameUIControlller>();
+        gameUIController = MonoBehaviour.FindObjectOfType<InGameUIController>();
 
         tetrisController.Init();
         gameUIController.Init(StoreManager.Instance);
 
         tetrisController.OnFinished = () =>
         {
-            // データの保存
+            // TODO: データの保存
             GameManager.Instance.ChangeState(new GS_Result());
         };
 
-        gameUIController.OnPauseBtnClicked = () =>
+        gameUIController.OnPaused = () =>
         {
-            gameUIController.gameObject.SetActive(false);
+        };
+
+        gameUIController.OnInGamed = () =>
+        {
+
+        };
+
+        gameUIController.OnTitled = () =>
+        {
+
         };
     }
 
