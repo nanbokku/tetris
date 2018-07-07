@@ -24,9 +24,20 @@ public class GameManager : MonoBehaviour
     private IGameState currentState;
 
 
+    void Awake()
+    {
+        if (this != Instance)
+        {
+            Destroy(this);
+            return;
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     void Start()
     {
-        this.currentState = new GS_InGame();
+        this.currentState = new GS_Title();
         this.currentState.Enter();
     }
 

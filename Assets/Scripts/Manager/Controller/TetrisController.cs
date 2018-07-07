@@ -85,14 +85,15 @@ public class TetrisController : MonoBehaviour
             blocks[block.Position.y * Data.Columns + block.Position.x] = block;
         }
 
-        // 横列のチェック
-        var rmRow = CheckLine(bitboard, typeboard);    // 消す行のリスト
-
         // ブロックの状態を更新
-        UpdateView(rmRow);
+        UpdateView(CheckLine(bitboard, typeboard));
 
-        // // ビットボードの更新
-        // DownBitLine(ref bitboard, ref typeboard);
+        // ゲームが終了したか判定
+        if (IsFinished(bitboard))
+        {
+            OnFinished();
+            return;
+        }
 
         // 現在，次のテトリミノの更新
         current = next;
@@ -104,6 +105,19 @@ public class TetrisController : MonoBehaviour
         // 次の操作へ
         current.Launch();
         next.Standby();
+    }
+
+    private bool IsFinished(ushort[] bitboard)
+    {
+        var bits = 0x0c00;
+
+        // 最上段の真ん中2マスが埋まっていたら終了
+        if ((bitboard[Data.Rows - 1] & bits) == bits)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private Tetrimino CreateTetrimino()
@@ -123,6 +137,7 @@ public class TetrisController : MonoBehaviour
             // テトリミノの削除
             Destroy(tetrimino.gameObject);
 
+            // 次のテトリミノの操作へ移る
             Next();
         };
 
@@ -168,7 +183,7 @@ public class TetrisController : MonoBehaviour
             row = row - continuation + 1;
 
             // 下に詰めていく
-            // FIXME: 何かの拍子にずれる？そろってるはずだけど消えないときがある
+            // FIXME: 何かの拍子にずれる？そろってるはずだけど消えないときがあるかもしれない？要確認．
             for (var crntrow = rmRow[row]; crntrow + continuation < Data.Rows; crntrow++)
             {
                 for (var col = 0; col < Data.Columns; col++)

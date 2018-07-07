@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public interface IGameState
 {
@@ -11,7 +12,27 @@ public interface IGameState
 
 public class GS_Title : IGameState
 {
-    public void Enter() { }
+    private TitleUIController uiController;
+
+    public void Enter()
+    {
+        uiController = MonoBehaviour.FindObjectOfType<TitleUIController>();
+
+        uiController.OnStarted = () =>
+        {
+            SceneManager.LoadScene("Main");
+        };
+
+        // シーン遷移後にゲームステートを更新
+        SceneManager.activeSceneChanged += (before, after) =>
+        {
+            if (before == SceneManager.GetSceneByName("Title"))
+            {
+                GameManager.Instance.ChangeState(new GS_InGame());
+            }
+        };
+    }
+
     public void Execute() { }
     public void Exit() { }
 }
@@ -46,7 +67,11 @@ public class GS_Pause : IGameState
 
 public class GS_Result : IGameState
 {
-    public void Enter() { }
+    public void Enter()
+    {
+        Debug.Log("Enter " + typeof(GS_Result));
+    }
+
     public void Execute() { }
     public void Exit() { }
 }
