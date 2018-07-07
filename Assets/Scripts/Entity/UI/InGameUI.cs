@@ -9,8 +9,8 @@ public class InGameUI : MonoBehaviour, IObserver
 {
     public Action OnPauseBtnClicked { get; set; }
 
-    private TetrisStore store;
-    public TetrisStore Store
+    private ScoreStore store;
+    public ScoreStore Store
     {
         get
         {
@@ -19,7 +19,9 @@ public class InGameUI : MonoBehaviour, IObserver
         set
         {
             store = value;
+
             store.AddObserver(this);
+            ValueChanged(0);
         }
     }
 

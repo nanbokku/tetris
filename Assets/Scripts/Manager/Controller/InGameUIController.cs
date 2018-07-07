@@ -18,7 +18,7 @@ public class InGameUIController : MonoBehaviour
 
     public void Init(StoreManager store)
     {
-        gameUI.Store = store.TetrisStore;
+        gameUI.Store = store.ScoreStore;
 
         gameUI.OnPauseBtnClicked = () =>
         {
