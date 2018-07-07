@@ -8,7 +8,7 @@ public class Block : MonoBehaviour
 {
     public Data.BlockType Type { get; private set; }
     public Data.BlockPosition Position { get; set; }
-    public Collider Collider;
+    public Collider Collider { get; set; }
 
     public Action OnLand { get; set; }
 
