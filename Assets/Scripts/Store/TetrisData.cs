@@ -44,7 +44,7 @@ namespace Store
             Resources.Load<GameObject>("Block/LBlock"),
             Resources.Load<GameObject>("Block/JBlock"),
             Resources.Load<GameObject>("Block/SBlock"),
-            //Resources.Load<GameObject>("Block/ZBlock"),
+            Resources.Load<GameObject>("Block/ZBlock"),
             Resources.Load<GameObject>("Block/TBlock")
         };
 
