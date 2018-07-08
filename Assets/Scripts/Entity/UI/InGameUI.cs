@@ -31,6 +31,8 @@ public class InGameUI : MonoBehaviour, IObserver
     private Text levelTxt;
     [SerializeField]
     private Text scoreTxt;
+    [SerializeField]
+    private Text lineTxt;
 
 
     void Start()
@@ -40,10 +42,13 @@ public class InGameUI : MonoBehaviour, IObserver
 
     public void ValueChanged(object value)
     {
-        var level = "LEVEL: ";
+        var level = "LEVEL\n";
         levelTxt.text = level + store.Level.ToString();
 
-        var score = "SCORE: ";
+        var score = "SCORE\n";
         scoreTxt.text = score + store.Score.ToString();
+
+        var line = "LINE\n";
+        lineTxt.text = line + store.Line.ToString();
     }
 }

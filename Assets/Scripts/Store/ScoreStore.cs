@@ -35,6 +35,20 @@ namespace Store
             }
         }
 
+        private int line;
+        public int Line
+        {
+            get
+            {
+                return line;
+            }
+            set
+            {
+                line = value;
+                Notify(line);
+            }
+        }
+
 
         public void Init()
         {

@@ -7,6 +7,8 @@ namespace Store
         public const int Rows = 20;
         public const int Columns = 10;
 
+        public static readonly int[] ScoreByBlockLines = new int[] { 40, 100, 300, 1200 };
+
         public static readonly Vector3 BlockInterval = new Vector3(1.0f, 1.0f, 0f);
 
         public enum BlockType

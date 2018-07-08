@@ -18,7 +18,8 @@ public class TetrisController : MonoBehaviour
     private float oldTime = 0;
 
     private const float InitDropInterval = 1.5f;
-    private const float LevelUpTimeInterval = 10.0f;
+    private const float MinDropInterval = 0.01f;
+    private const float SpeedUpTimeInterval = 20.0f;
 
 
     void Update()
@@ -34,7 +35,7 @@ public class TetrisController : MonoBehaviour
         current.Drop(1);
 
         // テトリミノの落ちるスピードを更新する
-        UpdateDropInterval();
+        UpdateLevelAndDropSpeed();
     }
 
     public void Init()
@@ -96,8 +97,13 @@ public class TetrisController : MonoBehaviour
             blocks[block.Position.y * Data.Columns + block.Position.x] = block;
         }
 
+        var removeRow = TetrisBitBoard.CheckLine(bitboard, typeboard);
+
+        // Lineの更新
+        UpdateScoreAndLine(removeRow.Count);
+
         // ブロックの状態を更新
-        UpdateView(TetrisBitBoard.CheckLine(bitboard, typeboard));
+        UpdateView(removeRow);
 
         // ゲームが終了したか判定
         if (IsFinished(bitboard))
@@ -210,14 +216,27 @@ public class TetrisController : MonoBehaviour
         }
     }
 
-    private void UpdateDropInterval()
+    private void UpdateLevelAndDropSpeed()
     {
-        var level = (int)(time / LevelUpTimeInterval);
+        var level = (int)(time / SpeedUpTimeInterval);
+
+        // Levelの更新
         if (StoreManager.Instance.ScoreStore.Level < level)
         {
             StoreManager.Instance.ScoreStore.Level = level;
         }
 
+        // 落下スピードの更新
         interval = InitDropInterval - StoreManager.Instance.ScoreStore.Level * 0.05f;
+        interval = interval > MinDropInterval ? interval : MinDropInterval;
+    }
+
+    private void UpdateScoreAndLine(int removelines)
+    {
+        if (removelines == 0) return;
+
+        var level = StoreManager.Instance.ScoreStore.Level;
+        StoreManager.Instance.ScoreStore.Score += Data.ScoreByBlockLines[removelines - 1] * (level + 1);
+        StoreManager.Instance.ScoreStore.Line += removelines;
     }
 }
