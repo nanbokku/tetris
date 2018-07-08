@@ -8,16 +8,21 @@ public class Player : MonoBehaviour
     public Action<Data.DirectionX> OnRotated { get; set; }
     public Action OnWarped { get; set; }
 
+    private Data.DirectionX prevdir;
+    private float prevtime;
+
+    private const float MinTranslationInterval = 0.06f;
+
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            OnTranslated(Data.DirectionX.Right);
+            Translate(Data.DirectionX.Right);
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            OnTranslated(Data.DirectionX.Left);
+            Translate(Data.DirectionX.Left);
         }
         else if (Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -31,5 +36,25 @@ public class Player : MonoBehaviour
         {
             OnWarped();
         }
+    }
+
+    private void Translate(Data.DirectionX dir)
+    {
+        // 前回と移動方向が異なる場合
+        if (prevdir != dir)
+        {
+            prevdir = dir;
+            prevtime = Time.time;
+
+            OnTranslated(dir);
+            return;
+        }
+
+        // 一定の時間間隔で移動
+        if (Time.time - prevtime < MinTranslationInterval) return;
+
+        prevtime = Time.time;
+
+        OnTranslated(dir);
     }
 }
