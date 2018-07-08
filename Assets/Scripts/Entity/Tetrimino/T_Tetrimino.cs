@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Data = Store.TetrisData;
 
-public class J_Tetrimino : Tetrimino
+public class T_Tetrimino : Tetrimino
 {
-    public override Data.BlockType BlockType { get { return Data.BlockType.J; } }
+    public override Data.BlockType BlockType { get { return Data.BlockType.T; } }
 
-    protected override Vector3 StandbyPosition { get { return new Vector3(4.5f, 21.5f, 0f); } }
-    protected override Vector3 StartPosition { get { return new Vector3(4.5f, 19.5f, 0f); } }
+    protected override Vector3 StandbyPosition { get { return new Vector3(4.5f, 21f, 0f); } }
+    protected override Vector3 StartPosition { get { return new Vector3(4.5f, 19f, 0f); } }
     protected override List<Block> BottomBlocks
     {
         get
@@ -29,10 +29,10 @@ public class J_Tetrimino : Tetrimino
 
     private static readonly Vector3[,] rotCoodinate =
     {
-        {new Vector3(-1f, 0f, -0.5f), new Vector3(0f, 0f, -0.5f), new Vector3(1f, -1f,-0.5f), new Vector3(1f, 0f, -0.5f)},//012
-        {new Vector3(0f, -1f, -0.5f), new Vector3(-1f, -1f,-0.5f),new Vector3(0f, 1f, -0.5f), new Vector3(0f, 0f, -0.5f)},//01
-        {new Vector3(-1f, -1f, -0.5f), new Vector3(0f, -1f, -0.5f), new Vector3(1f, -1f,-0.5f),new Vector3(-1f, 0f, -0.5f)},//012
-        {new Vector3(0f, -1f,-0.5f),  new Vector3(1f, 1f, -0.5f), new Vector3(0f, 1f, -0.5f), new Vector3(0f, 0f, -0.5f)},//01
+        {new Vector3(-1f, 0.5f, -0.5f), new Vector3(0f, -0.5f, -0.5f), new Vector3(1f, 0.5f, -0.5f),  new Vector3(0f, 0.5f, -0.5f)},
+        {new Vector3(-1f, 0.5f, -0.5f), new Vector3(0f, -0.5f, -0.5f), new Vector3(0f, 1.5f, -0.5f),  new Vector3(0f, 0.5f, -0.5f)},
+        {new Vector3(-1f, -0.5f, -0.5f), new Vector3(0f, -0.5f, -0.5f), new Vector3(1f, -0.5f, -0.5f),  new Vector3(0f, 0.5f, -0.5f)},
+        {new Vector3(0f, -0.5f, -0.5f), new Vector3(1f, 0.5f, -0.5f), new Vector3(0f, 1.5f, -0.5f),  new Vector3(0f, 0.5f, -0.5f)},
     };
 
 
@@ -43,7 +43,7 @@ public class J_Tetrimino : Tetrimino
         // 底辺ブロックの初期化
         bottomBlocks = new List<List<Block>>();
 
-        // rotation: Normal or Reverse状態の底辺ブロック
+        // 通常,逆状態の底辺ブロック
         var blocks = new List<Block>();
         blocks.Add(Blocks[0]);
         blocks.Add(Blocks[1]);
@@ -51,7 +51,7 @@ public class J_Tetrimino : Tetrimino
 
         bottomBlocks.Add(blocks);
 
-        // rotation: Right or Left状態の底辺ブロック
+        // 右,左回転時の底辺ブロック
         blocks = new List<Block>();
         blocks.Add(Blocks[0]);
         blocks.Add(Blocks[1]);
@@ -61,18 +61,18 @@ public class J_Tetrimino : Tetrimino
 
     public override void Translate(Data.DirectionX direction)
     {
-        // 左端に達したとき右入力しか受け付けない
-        if (direction == Data.DirectionX.Left)
-        {
-            if (rotation != Data.BlockRotation.Left && transform.position.x <= 1.5f) return;
-            if (rotation == Data.BlockRotation.Left && transform.position.x <= 0.5f) return;
-        }
-
         // 右端に達したとき左入力しか受け付けない
         if (direction == Data.DirectionX.Right)
         {
             if (rotation != Data.BlockRotation.Right && transform.position.x >= 8.5f) return;
             if (rotation == Data.BlockRotation.Right && transform.position.x >= 9.5f) return;
+        }
+
+        // 左端に達したとき右入力しか受け付けない
+        if (direction == Data.DirectionX.Left)
+        {
+            if (rotation != Data.BlockRotation.Left && transform.position.x <= 1.5f) return;
+            if (rotation == Data.BlockRotation.Left && transform.position.x <= 0.5f) return;
         }
 
         transform.Translate((int)direction * Data.BlockInterval.x, 0f, 0f);
@@ -96,7 +96,7 @@ public class J_Tetrimino : Tetrimino
         {
             rotation = Data.BlockRotation.Normal;
         }
-        // 通常状態で左回転をしたとき，Left状態にする
+        //　通常状態で左回転をしたとき，Left状態にする
         else if (direction == Data.DirectionX.Left && rotation == Data.BlockRotation.Normal)
         {
             rotation = Data.BlockRotation.Left;
@@ -121,7 +121,7 @@ public class J_Tetrimino : Tetrimino
 
     protected override void Init()
     {
-        var iniPos = new Vector2Int[] { new Vector2Int(3, 19), new Vector2Int(4, 19), new Vector2Int(5, 18), new Vector2Int(5, 19) };
+        var iniPos = new Vector2Int[] { new Vector2Int(3, 19), new Vector2Int(4, 18), new Vector2Int(5, 19), new Vector2Int(4, 19) };
         for (var i = 0; i < Blocks.Length; i++)
         {
             Blocks[i].Init(BlockType, new Data.BlockPosition(iniPos[i].x, iniPos[i].y));

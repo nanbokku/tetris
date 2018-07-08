@@ -45,7 +45,7 @@ namespace Store
             Resources.Load<GameObject>("Block/JBlock"),
             Resources.Load<GameObject>("Block/SBlock"),
             //Resources.Load<GameObject>("Block/ZBlock"),
-            //Resources.Load<GameObject>("Block/TBlock")
+            Resources.Load<GameObject>("Block/TBlock")
         };
 
         public struct TetrisSaveData
