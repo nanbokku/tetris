@@ -67,18 +67,11 @@ public class TetrisController : MonoBehaviour
             current.Translate(dir);
         };
 
-        // FIXME: ワープとUpdate.Drop()の呼ばれるタイミングによって，ブロックの着地地点がおかしくなる
         player.OnWarped = () =>
         {
             if (current == null) return;
 
-            // 下方向にあるオブジェクトを取得
-            var hit = current.BottomRaycastHit();
-            if (hit.distance == Mathf.Infinity) return;
-
-            // 一気に下に下がる
-            var down = (int)(hit.distance / Data.BlockInterval.y);
-            current.Drop(down);
+            current.Warp();
         };
     }
 

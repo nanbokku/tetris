@@ -16,6 +16,7 @@ public abstract class Tetrimino : MonoBehaviour
     protected abstract List<Block> BottomBlocks { get; }
 
     private bool isLanded = false;
+    private bool isWarped = false;
 
 
     protected virtual void Awake()
@@ -66,6 +67,9 @@ public abstract class Tetrimino : MonoBehaviour
 
     public void Drop(int blockNum)
     {
+        // ワープ後の落下を防止する
+        if (isWarped) return;
+
         transform.Translate(0f, -Data.BlockInterval.y * blockNum, 0f);
         foreach (var block in Blocks)
         {
@@ -75,6 +79,19 @@ public abstract class Tetrimino : MonoBehaviour
             Debug.Log("(" + block.Position.x + ", " + block.Position.y + ")");
         }
         Debug.Log("");
+    }
+
+    public void Warp()
+    {
+        // 下方向にあるオブジェクトを取得
+        var hit = BottomRaycastHit();
+        if (hit.distance == Mathf.Infinity) return;
+
+        // 一気に下に下がる
+        var down = (int)(hit.distance / Data.BlockInterval.y);
+        Drop(down);
+
+        isWarped = true;
     }
 
     // 底辺ブロックから下方向にRayを飛ばす．最も近くのRaycastHitを返す．

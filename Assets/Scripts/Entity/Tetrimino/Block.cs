@@ -12,8 +12,12 @@ public class Block : MonoBehaviour
 
     public Action OnLand { get; set; }
 
-    private const string bottomTag = "BottomFrame";
-    private const string blockTag = "Block";
+    // private float landTime;
+    // private float landPosY;
+
+    private const float MovableTimeOnLand = 0.5f;
+    private const string BottomTag = "BottomFrame";
+    private const string BlockTag = "Block";
 
 
     void Awake()
@@ -25,12 +29,19 @@ public class Block : MonoBehaviour
     {
         this.Type = type;
         this.Position = position;
+
+        // landPosY = Mathf.Infinity;
+        // landTime = 0;
     }
 
     void OnTriggerEnter(Collider col)
     {
-        // TODO: 追加ルール：遊び時間の実装
-        if (col.gameObject.tag != bottomTag && col.gameObject.tag != blockTag) return;
+        // TODO: 追加ルール：遊び時間の実装　テトリミノの移動，回転制限も考えなければならない
+
+        // if (transform.position.y >= landPosY) return;
+
+        // 他のBlockや地面にのみ衝突判定を行う
+        if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
         if (col.transform.parent == this.transform.parent) return;
 
         // 真下に衝突判定があるのか判定
@@ -39,7 +50,18 @@ public class Block : MonoBehaviour
         if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return;
         if (hit.collider != col) return;
 
-        OnLand();
+        // landTime = Time.time;
+        // landPosY = transform.position.y;
 
+        OnLand();
+    }
+
+    void OnTriggerStay(Collider col)
+    {
+        // // 遊び時間中は何もしない
+        // if (landTime == 0 || Time.time - landTime < MovableTimeOnLand) return;
+
+        // // 遊び時間を過ぎたら着地
+        // OnLand();
     }
 }

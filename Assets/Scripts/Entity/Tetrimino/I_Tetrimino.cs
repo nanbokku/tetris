@@ -75,6 +75,8 @@ public class I_Tetrimino : Tetrimino
         }
     }
 
+
+    // FIXME: BlockRotation.Normalのとき，地面の1マス上の状態でRightになったとき地面に埋まって着地する
     public override void Rotate(Data.DirectionX direction)
     {
         // 回転制限
