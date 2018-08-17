@@ -34,26 +34,24 @@ public class Block : MonoBehaviour
         // landTime = 0;
     }
 
+    private bool IsTouchingIn(Vector3 direction, Collider col)
+    {
+        var ray = new Ray(transform.position, direction);
+        RaycastHit hit;
+        if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return false;
+        if (hit.collider != col) return false;
+
+        return true;
+    }
+
     void OnTriggerEnter(Collider col)
     {
         // TODO: 追加ルール：遊び時間の実装　テトリミノの移動，回転制限も考えなければならない
 
         // if (transform.position.y >= landPosY) return;
 
-        // 他のBlockや地面にのみ衝突判定を行う
-        if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
-        if (col.transform.parent == this.transform.parent) return;
-
-        // 真下に衝突判定があるのか判定
-        var ray = new Ray(transform.position, Vector3.down);
-        RaycastHit hit;
-        if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return;
-        if (hit.collider != col) return;
-
         // landTime = Time.time;
         // landPosY = transform.position.y;
-
-        OnLand();
     }
 
     void OnTriggerStay(Collider col)
@@ -63,5 +61,15 @@ public class Block : MonoBehaviour
 
         // // 遊び時間を過ぎたら着地
         // OnLand();
+
+
+        // 他のBlockや地面にのみ衝突判定を行う
+        if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
+        if (col.transform.parent == this.transform.parent) return;
+
+        // 真下に衝突判定があるのか判定
+        if (!IsTouchingIn(Vector3.down, col)) return;
+
+        OnLand();
     }
 }
