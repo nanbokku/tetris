@@ -61,6 +61,8 @@ public class T_Tetrimino : Tetrimino
 
     public override void Translate(Data.DirectionX direction)
     {
+        if (!CanTranslate[direction]) return;
+
         // 右端に達したとき左入力しか受け付けない
         if (direction == Data.DirectionX.Right)
         {

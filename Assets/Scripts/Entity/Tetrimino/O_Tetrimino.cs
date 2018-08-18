@@ -30,6 +30,8 @@ public class O_Tetrimino : Tetrimino
 
     public override void Translate(Data.DirectionX direction)
     {
+        if (!CanTranslate[direction]) return;
+
         // 右端に達したとき左入力しか受け付けない
         if (transform.position.x >= 9f && direction > 0) return;
         // 左端に達したとき右入力しか受け付けない

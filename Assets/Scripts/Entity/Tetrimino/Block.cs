@@ -11,6 +11,7 @@ public class Block : MonoBehaviour
     public Collider Collider { get; set; }
 
     public Action OnLand { get; set; }
+    public Action<Data.DirectionX, bool> OnTranslatabilityChanged { get; set; }
 
     // private float landTime;
     // private float landPosY;
@@ -52,6 +53,26 @@ public class Block : MonoBehaviour
 
         // landTime = Time.time;
         // landPosY = transform.position.y;
+
+    }
+
+    void OnTriggerExit(Collider col)
+    {
+        // 同じテトリミノを構成するブロックは無視
+        if (col.transform.parent == this.transform.parent) return;
+
+        // コライダ―との距離がブロックの間隔以下の場合無視
+        if (Vector3.Distance(col.transform.position, transform.position) <= Data.BlockInterval.x) return;
+
+        var direction = (col.transform.position - transform.position).normalized;
+        if (Vector3.Angle(Vector3.right, direction) < 90f)
+        {
+            OnTranslatabilityChanged(Data.DirectionX.Right, true);
+        }
+        else
+        {
+            OnTranslatabilityChanged(Data.DirectionX.Left, true);
+        }
     }
 
     void OnTriggerStay(Collider col)
@@ -63,9 +84,20 @@ public class Block : MonoBehaviour
         // OnLand();
 
 
+        // 同じテトリミノを構成するブロックは無視
+        if (col.transform.parent == this.transform.parent) return;
+
+        if (IsTouchingIn(Vector3.right, col))
+        {
+            OnTranslatabilityChanged(Data.DirectionX.Right, false);
+        }
+        else if (IsTouchingIn(Vector3.left, col))
+        {
+            OnTranslatabilityChanged(Data.DirectionX.Left, false);
+        }
+
         // 他のBlockや地面にのみ衝突判定を行う
         if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
-        if (col.transform.parent == this.transform.parent) return;
 
         // 真下に衝突判定があるのか判定
         if (!IsTouchingIn(Vector3.down, col)) return;
