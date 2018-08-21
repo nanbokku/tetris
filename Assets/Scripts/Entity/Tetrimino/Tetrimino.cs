@@ -16,7 +16,6 @@ public abstract class Tetrimino : MonoBehaviour
     protected abstract List<Block> BottomBlocks { get; }
 
     private bool isLanded = false;
-    private bool isWarped = false;
 
 
     protected virtual void Awake()
@@ -67,8 +66,15 @@ public abstract class Tetrimino : MonoBehaviour
 
     public void Drop(int blockNum)
     {
-        // ワープ後の落下を防止する
-        if (isWarped) return;
+        // 接地後の落下を防止
+        if (isLanded) return;
+
+        // 下方向に移動できないとき
+        var distance = (int)(DistanceToBottomObject() / Data.BlockInterval.y);
+        if (distance <= 0) return;
+
+        // ブロックのめり込み防止
+        blockNum = distance < blockNum ? distance : blockNum;
 
         transform.Translate(0f, -Data.BlockInterval.y * blockNum, 0f);
         foreach (var block in Blocks)
@@ -83,19 +89,20 @@ public abstract class Tetrimino : MonoBehaviour
 
     public void Warp()
     {
-        // 下方向にあるオブジェクトを取得
-        var hit = BottomRaycastHit();
-        if (hit.distance == Mathf.Infinity) return;
+        // 下方向にあるオブジェクトまでの距離を取得
+        var distance = DistanceToBottomObject();
+        if (distance == Mathf.Infinity) return;
 
         // 一気に下に下がる
-        var down = (int)(hit.distance / Data.BlockInterval.y);
+        var down = (int)(distance / Data.BlockInterval.y);
         Drop(down);
 
-        isWarped = true;
+        isLanded = true;
+        OnLand(Blocks);
     }
 
-    // 底辺ブロックから下方向にRayを飛ばす．最も近くのRaycastHitを返す．
-    public RaycastHit BottomRaycastHit()
+    // 下方向にある最も近くのオブジェクトまでの距離
+    private float DistanceToBottomObject()
     {
         RaycastHit nearest = new RaycastHit();
         nearest.distance = Mathf.Infinity;
@@ -114,9 +121,10 @@ public abstract class Tetrimino : MonoBehaviour
             }
         }
 
-        return nearest;
+        return nearest.distance;
     }
 
+    // direction方向に接触しているか
     protected bool IsTouchingIn(Data.DirectionX direction)
     {
         foreach (var block in Blocks)

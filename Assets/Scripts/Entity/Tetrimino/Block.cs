@@ -12,10 +12,9 @@ public class Block : MonoBehaviour
 
     public Action OnLand { get; set; }
 
-    // private float landTime;
-    // private float landPosY;
+    private float landTime;
 
-    private const float MovableTimeOnLand = 0.5f;
+    private const float MovableTimeOnLand = 1.0f;
     private const string BottomTag = "BottomFrame";
     private const string BlockTag = "Block";
 
@@ -30,8 +29,7 @@ public class Block : MonoBehaviour
         this.Type = type;
         this.Position = position;
 
-        // landPosY = Mathf.Infinity;
-        // landTime = 0;
+        landTime = -1;
     }
 
     // 指定した方向にブロックが接触しているか判定する
@@ -54,34 +52,45 @@ public class Block : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        // TODO: 追加ルール：遊び時間の実装　テトリミノの移動，回転制限も考えなければならない
+        if (!IsCollisionWithBottomBlock(col)) return;
 
-        // if (transform.position.y >= landPosY) return;
+        landTime = Time.time;
+    }
 
-        // landTime = Time.time;
-        // landPosY = transform.position.y;
+    void OnTriggerExit(Collider col)
+    {
+        if (!IsCollisionWithBottomBlock(col)) return;
 
+        landTime = -1;
     }
 
     void OnTriggerStay(Collider col)
     {
-        // // 遊び時間中は何もしない
-        // if (landTime == 0 || Time.time - landTime < MovableTimeOnLand) return;
+        // 遊び時間中は何もしない
+        if (landTime < 0 || Time.time - landTime < MovableTimeOnLand) return;
 
-        // // 遊び時間を過ぎたら着地
-        // OnLand();
-
-
-        // 同じテトリミノを構成するブロックは無視
-        if (col.transform.parent == this.transform.parent) return;
-
-        // 他のBlockや地面にのみ衝突判定を行う
-        if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
-
-        // 真下に衝突判定があるのか判定
-        var direction = (col.ClosestPoint(this.transform.position) - this.transform.position).normalized;
-        if (direction != Vector3.down) return;
+        if (!IsCollisionWithBottomBlock(col)) return;
 
         OnLand();
+        landTime = -1;
+    }
+
+    private bool IsCollisionWithBottomBlock(Collider col)
+    {
+        // 同じテトリミノを構成するブロックは無視
+        if (col.transform.parent == this.transform.parent) return false;
+
+        // 他のBlockや地面にのみ衝突判定を行う
+        if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return false;
+
+        // 真下に衝突判定があるのか判定
+        if (DirectionTo(col) != Vector3.down) return false;
+
+        return true;
+    }
+
+    private Vector3 DirectionTo(Collider col)
+    {
+        return (col.ClosestPoint(this.transform.position) - this.transform.position).normalized;
     }
 }
