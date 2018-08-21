@@ -61,21 +61,7 @@ public class L_Tetrimino : Tetrimino
 
     public override void Translate(Data.DirectionX direction)
     {
-        if (!CanTranslate[direction]) return;
-
-        // 左に達したとき右入力しか受け付けない
-        if (direction == Data.DirectionX.Left)
-        {
-            if (rotation != Data.BlockRotation.Left && transform.position.x <= 1.5f) return;
-            if (rotation == Data.BlockRotation.Left && transform.position.x <= 0.5f) return;
-        }
-
-        // 右に達したとき左入力しか受け付けない
-        if (direction == Data.DirectionX.Right)
-        {
-            if (rotation != Data.BlockRotation.Right && transform.position.x >= 8.5f) return;
-            if (rotation == Data.BlockRotation.Right && transform.position.x >= 9.5f) return;
-        }
+        if (IsTouchingIn(direction)) return;
 
         transform.Translate((int)direction * Data.BlockInterval.x, 0f, 0f);
 

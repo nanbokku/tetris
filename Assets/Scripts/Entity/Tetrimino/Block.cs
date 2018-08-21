@@ -11,7 +11,6 @@ public class Block : MonoBehaviour
     public Collider Collider { get; set; }
 
     public Action OnLand { get; set; }
-    public Action<Data.DirectionX, bool> OnTranslatabilityChanged { get; set; }
 
     // private float landTime;
     // private float landPosY;
@@ -35,12 +34,20 @@ public class Block : MonoBehaviour
         // landTime = 0;
     }
 
-    private bool IsTouchingIn(Vector3 direction, Collider col)
+    // 指定した方向にブロックが接触しているか判定する
+    // MEMO: 衝突判定イベントでブロックが接触しているか判定するのではどうしてもずれが生じたため，移動前にこのメソッドで接触していないか確認する
+    public bool IsTouchingIn(Data.DirectionX direction)
     {
-        var ray = new Ray(transform.position, direction);
+        var ray = new Ray(transform.position, Vector3.right * (int)direction);
         RaycastHit hit;
+
         if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return false;
-        if (hit.collider != col) return false;
+
+        // 同じテトリミノを構成するブロックは無視
+        if (hit.collider.transform.parent == transform.parent) return false;
+
+        // 接触していない
+        if (hit.distance > Data.BlockInterval.x) return false;
 
         return true;
     }
@@ -56,25 +63,6 @@ public class Block : MonoBehaviour
 
     }
 
-    void OnTriggerExit(Collider col)
-    {
-        // 同じテトリミノを構成するブロックは無視
-        if (col.transform.parent == this.transform.parent) return;
-
-        // コライダ―との距離がブロックの間隔以下の場合無視
-        if (Vector3.Distance(col.transform.position, transform.position) <= Data.BlockInterval.x) return;
-
-        var direction = (col.transform.position - transform.position).normalized;
-        if (Vector3.Angle(Vector3.right, direction) < 90f)
-        {
-            OnTranslatabilityChanged(Data.DirectionX.Right, true);
-        }
-        else
-        {
-            OnTranslatabilityChanged(Data.DirectionX.Left, true);
-        }
-    }
-
     void OnTriggerStay(Collider col)
     {
         // // 遊び時間中は何もしない
@@ -87,20 +75,12 @@ public class Block : MonoBehaviour
         // 同じテトリミノを構成するブロックは無視
         if (col.transform.parent == this.transform.parent) return;
 
-        if (IsTouchingIn(Vector3.right, col))
-        {
-            OnTranslatabilityChanged(Data.DirectionX.Right, false);
-        }
-        else if (IsTouchingIn(Vector3.left, col))
-        {
-            OnTranslatabilityChanged(Data.DirectionX.Left, false);
-        }
-
         // 他のBlockや地面にのみ衝突判定を行う
         if (col.gameObject.tag != BottomTag && col.gameObject.tag != BlockTag) return;
 
         // 真下に衝突判定があるのか判定
-        if (!IsTouchingIn(Vector3.down, col)) return;
+        var direction = (col.ClosestPoint(this.transform.position) - this.transform.position).normalized;
+        if (direction != Vector3.down) return;
 
         OnLand();
     }

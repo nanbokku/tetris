@@ -14,7 +14,6 @@ public abstract class Tetrimino : MonoBehaviour
     protected abstract Vector3 StandbyPosition { get; }
     protected abstract Vector3 StartPosition { get; }
     protected abstract List<Block> BottomBlocks { get; }
-    protected Dictionary<Data.DirectionX, bool> CanTranslate { get; private set; }
 
     private bool isLanded = false;
     private bool isWarped = false;
@@ -22,10 +21,6 @@ public abstract class Tetrimino : MonoBehaviour
 
     protected virtual void Awake()
     {
-        CanTranslate = new Dictionary<Data.DirectionX, bool>();
-        CanTranslate.Add(Data.DirectionX.Right, true);
-        CanTranslate.Add(Data.DirectionX.Left, true);
-
         Blocks = GetComponentsInChildren<Block>();
 
         foreach (var block in Blocks)
@@ -37,11 +32,6 @@ public abstract class Tetrimino : MonoBehaviour
 
                 isLanded = true;
                 OnLand(Blocks);
-            };
-
-            block.OnTranslatabilityChanged = (direction, flg) =>
-            {
-                CanTranslate[direction] = flg;
             };
         }
 
@@ -125,6 +115,16 @@ public abstract class Tetrimino : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    protected bool IsTouchingIn(Data.DirectionX direction)
+    {
+        foreach (var block in Blocks)
+        {
+            if (block.IsTouchingIn(direction)) return true;
+        }
+
+        return false;
     }
 
     public abstract void Translate(Data.DirectionX direction);
