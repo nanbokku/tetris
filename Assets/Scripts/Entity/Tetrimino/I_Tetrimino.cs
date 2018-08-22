@@ -69,13 +69,22 @@ public class I_Tetrimino : Tetrimino
         }
     }
 
-
-    // FIXME: BlockRotation.Normalのとき，地面の1マス上の状態でRightになったとき地面に埋まって着地する
     public override void Rotate(Data.DirectionX direction)
     {
         // 回転制限
-        if (rotation == Data.BlockRotation.Right
-            && (transform.position.x < 2f || transform.position.x > 8f)) return;
+        if (rotation == Data.BlockRotation.Right)
+        {
+            // 左右にあるオブジェクトとの距離
+            var rightDir = (int)(DistanceToOtherObject(Data.DirectionX.Right) / Data.BlockInterval.x);
+            var leftDir = (int)(DistanceToOtherObject(Data.DirectionX.Left) / Data.BlockInterval.x);
+
+            if (rightDir < 1 || leftDir < 2) return;
+        }
+        else if (rotation == Data.BlockRotation.Normal)
+        {
+            var bottomDir = (int)(DistanceToBottomObject() / Data.BlockInterval.y);
+            if (bottomDir < 2) return;
+        }
 
         var crntRot = rotation;
 

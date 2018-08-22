@@ -75,7 +75,8 @@ public class J_Tetrimino : Tetrimino
     public override void Rotate(Data.DirectionX direction)
     {
         // 回転制限
-        if (transform.position.x < 1.0f || transform.position.x > 9.0f) return;
+        if (rotation == Data.BlockRotation.Right && IsTouchingIn(Data.DirectionX.Right)) return;
+        if (rotation == Data.BlockRotation.Left && IsTouchingIn(Data.DirectionX.Left)) return;
 
         var crntRot = rotation;
 

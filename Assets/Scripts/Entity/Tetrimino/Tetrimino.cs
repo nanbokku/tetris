@@ -102,7 +102,7 @@ public abstract class Tetrimino : MonoBehaviour
     }
 
     // 下方向にある最も近くのオブジェクトまでの距離
-    private float DistanceToBottomObject()
+    protected float DistanceToBottomObject()
     {
         RaycastHit nearest = new RaycastHit();
         nearest.distance = Mathf.Infinity;
@@ -124,12 +124,29 @@ public abstract class Tetrimino : MonoBehaviour
         return nearest.distance;
     }
 
+    protected float DistanceToOtherObject(Data.DirectionX direction)
+    {
+        float nearest = Mathf.Infinity;
+
+        foreach (var block in Blocks)
+        {
+            var distance = block.DistanceToOtherBlock(direction);
+
+            if (distance > 0 && distance < nearest)
+            {
+                nearest = distance;
+            }
+        }
+
+        return nearest;
+    }
+
     // direction方向に接触しているか
     protected bool IsTouchingIn(Data.DirectionX direction)
     {
         foreach (var block in Blocks)
         {
-            if (block.IsTouchingIn(direction)) return true;
+            if (block.IsTouchingInOtherBlock(direction)) return true;
         }
 
         return false;

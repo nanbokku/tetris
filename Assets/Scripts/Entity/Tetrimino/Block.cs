@@ -34,20 +34,29 @@ public class Block : MonoBehaviour
 
     // 指定した方向にブロックが接触しているか判定する
     // MEMO: 衝突判定イベントでブロックが接触しているか判定するのではどうしてもずれが生じたため，移動前にこのメソッドで接触していないか確認する
-    public bool IsTouchingIn(Data.DirectionX direction)
+    public bool IsTouchingInOtherBlock(Data.DirectionX direction)
     {
-        var ray = new Ray(transform.position, Vector3.right * (int)direction);
-        RaycastHit hit;
-
-        if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return false;
-
-        // 同じテトリミノを構成するブロックは無視
-        if (hit.collider.transform.parent == transform.parent) return false;
+        var distance = DistanceToOtherBlock(direction);
 
         // 接触していない
-        if (hit.distance > Data.BlockInterval.x) return false;
+        if (distance < 0 || distance > Data.BlockInterval.x) return false;
 
         return true;
+    }
+
+    // 指定した方向にある，最も近い他ブロックとの距離を求める
+    // 他ブロック以外のものが指定方向にある場合は負の値を返す．
+    public float DistanceToOtherBlock(Data.DirectionX direction)
+    {
+        var ray = new Ray(this.transform.position, Vector3.right * (int)direction);
+        RaycastHit hit;
+
+        if (!Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity)) return -1;
+
+        // 同じテトリミノを構成するブロックは無視
+        if (hit.collider.transform.parent == this.transform.parent) return -1;
+
+        return hit.distance;
     }
 
     void OnTriggerEnter(Collider col)
