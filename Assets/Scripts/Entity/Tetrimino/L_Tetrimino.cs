@@ -13,7 +13,7 @@ public class L_Tetrimino : Tetrimino
     {
         get
         {
-            if (rotation == Data.BlockRotation.Normal || rotation == Data.BlockRotation.Reverse)
+            if (Rotation == Data.BlockRotation.Normal || Rotation == Data.BlockRotation.Reverse)
             {
                 return bottomBlocks[0];
             }
@@ -24,7 +24,6 @@ public class L_Tetrimino : Tetrimino
         }
     }
 
-    private Data.BlockRotation rotation = Data.BlockRotation.Normal;
     private List<List<Block>> bottomBlocks;
 
     private Vector3[,] rotPosition =
@@ -74,38 +73,24 @@ public class L_Tetrimino : Tetrimino
 
     public override void Rotate(Data.DirectionX direction)
     {
-        // 回転制限
-        if (rotation == Data.BlockRotation.Right && IsTouchingIn(Data.DirectionX.Right)) return;
-        if (rotation == Data.BlockRotation.Left && IsTouchingIn(Data.DirectionX.Left)) return;
-
-        var crntRot = rotation;
+        var nextRot = Rotation;
 
         // 左向きの状態で右回転したとき，Normalに戻す
-        if (direction == Data.DirectionX.Right && rotation == Data.BlockRotation.Left)
+        if (direction == Data.DirectionX.Right && Rotation == Data.BlockRotation.Left)
         {
-            rotation = Data.BlockRotation.Normal;
+            nextRot = Data.BlockRotation.Normal;
         }
         // 通常状態で左回転したとき，Left状態にする
-        else if (direction == Data.DirectionX.Left && rotation == Data.BlockRotation.Normal)
+        else if (direction == Data.DirectionX.Left && Rotation == Data.BlockRotation.Normal)
         {
-            rotation = Data.BlockRotation.Left;
+            nextRot = Data.BlockRotation.Left;
         }
         else
         {
-            rotation += (int)direction;
+            nextRot += (int)direction;
         }
 
-        var idx = 0;
-        foreach (var block in Blocks)
-        {
-            block.transform.localPosition = rotPosition[(int)rotation, idx];
-
-            // Positionの更新
-            var diff = rotPosition[(int)rotation, idx] - rotPosition[(int)crntRot, idx];
-            block.Position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
-
-            idx++;
-        }
+        CheckAndRotate(nextRot, rotPosition);
     }
 
     protected override void Init()

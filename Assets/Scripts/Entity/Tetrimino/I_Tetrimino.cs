@@ -13,7 +13,7 @@ public class I_Tetrimino : Tetrimino
     {
         get
         {
-            if (rotation == Data.BlockRotation.Normal)
+            if (Rotation == Data.BlockRotation.Normal)
             {
                 return bottomBlocks[0];
             }
@@ -24,7 +24,6 @@ public class I_Tetrimino : Tetrimino
         }
     }
 
-    private Data.BlockRotation rotation = Data.BlockRotation.Normal;
     private List<List<Block>> bottomBlocks;
 
     private static readonly Vector3[,] rotCoodinate =
@@ -71,35 +70,11 @@ public class I_Tetrimino : Tetrimino
 
     public override void Rotate(Data.DirectionX direction)
     {
-        // 回転制限
-        if (rotation == Data.BlockRotation.Right)
-        {
-            // 左右にあるオブジェクトとの距離
-            var rightDir = (int)(DistanceToOtherObject(Data.DirectionX.Right) / Data.BlockInterval.x);
-            var leftDir = (int)(DistanceToOtherObject(Data.DirectionX.Left) / Data.BlockInterval.x);
+        var nextRot = Rotation;
 
-            if (rightDir < 1 || leftDir < 2) return;
-        }
-        else if (rotation == Data.BlockRotation.Normal)
-        {
-            var bottomDir = (int)(DistanceToBottomObject() / Data.BlockInterval.y);
-            if (bottomDir < 2) return;
-        }
+        nextRot = Rotation == Data.BlockRotation.Normal ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
 
-        var crntRot = rotation;
-
-        rotation = rotation == Data.BlockRotation.Normal ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
-
-        int idx = 0;
-        foreach (var block in Blocks)
-        {
-            block.transform.localPosition = rotCoodinate[(int)rotation, idx];
-
-            var diff = rotCoodinate[(int)rotation, idx] - rotCoodinate[(int)crntRot, idx];
-            block.Position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
-
-            idx++;
-        }
+        CheckAndRotate(nextRot, rotCoodinate);
     }
 
     protected override void Init()

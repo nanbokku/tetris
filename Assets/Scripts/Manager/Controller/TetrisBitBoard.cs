@@ -17,6 +17,11 @@ public static class TetrisBitBoard
         typeboard[block.Position.y * TetrisData.Columns + block.Position.x] = (byte)(0x01 << (int)block.Type);
     }
 
+    public static int GetPositionFlag(ushort[] bitboard, TetrisData.BlockPosition position)
+    {
+        return ((bitboard[position.y] << position.x) & 0x8000) >> 15;
+    }
+
     // 横列をチェックし，消去する列番号を返す
     public static List<int> CheckLine(ushort[] bitboard, byte[] typeboard)
     {

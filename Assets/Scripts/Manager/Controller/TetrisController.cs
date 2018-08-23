@@ -153,6 +153,26 @@ public class TetrisController : MonoBehaviour
             Next();
         };
 
+        tetrimino.OnRotateChecked = (positions) =>
+        {
+            var store = StoreManager.Instance.BoardStore;
+
+            foreach (var position in positions)
+            {
+                if (position.x < 0 || position.x >= Data.Columns) return false;
+                if (position.y < 0 || position.y >= Data.Rows) return false;
+
+                var flag = TetrisBitBoard.GetPositionFlag(store.BitBoard, position);
+
+                if (flag == 1)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
         return tetrimino;
     }
 

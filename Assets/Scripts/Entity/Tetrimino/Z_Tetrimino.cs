@@ -12,7 +12,7 @@ public class Z_Tetrimino : Tetrimino
     {
         get
         {
-            if (rotation == Data.BlockRotation.Normal)
+            if (Rotation == Data.BlockRotation.Normal)
             {
                 return bottomBlocks[0];
             }
@@ -23,7 +23,6 @@ public class Z_Tetrimino : Tetrimino
         }
     }
 
-    private Data.BlockRotation rotation = Data.BlockRotation.Normal;
     private List<List<Block>> bottomBlocks;
 
     private static readonly Vector3[,] rotCoodinate =
@@ -71,24 +70,11 @@ public class Z_Tetrimino : Tetrimino
 
     public override void Rotate(Data.DirectionX direction)
     {
-        // 回転制限
-        if (rotation == Data.BlockRotation.Right && IsTouchingIn(Data.DirectionX.Left)) return;
+        var nextRot = Rotation;
 
-        var crntRot = rotation;
+        nextRot = (Rotation == Data.BlockRotation.Normal) ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
 
-        rotation = (rotation == Data.BlockRotation.Normal) ? Data.BlockRotation.Right : Data.BlockRotation.Normal;
-
-        var idx = 0;
-        foreach (var block in Blocks)
-        {
-            block.transform.localPosition = rotCoodinate[(int)rotation, idx];
-
-            // Positionの更新
-            var diff = rotCoodinate[(int)rotation, idx] - rotCoodinate[(int)crntRot, idx];
-            block.Position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
-
-            idx++;
-        }
+        CheckAndRotate(nextRot, rotCoodinate);
     }
 
     protected override void Init()

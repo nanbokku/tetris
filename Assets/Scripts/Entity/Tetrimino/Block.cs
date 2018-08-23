@@ -46,7 +46,7 @@ public class Block : MonoBehaviour
 
     // 指定した方向にある，最も近い他ブロックとの距離を求める
     // 他ブロック以外のものが指定方向にある場合は負の値を返す．
-    public float DistanceToOtherBlock(Data.DirectionX direction)
+    private float DistanceToOtherBlock(Data.DirectionX direction)
     {
         var ray = new Ray(this.transform.position, Vector3.right * (int)direction);
         RaycastHit hit;

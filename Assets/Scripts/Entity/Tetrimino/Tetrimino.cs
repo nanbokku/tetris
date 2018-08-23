@@ -8,12 +8,14 @@ public abstract class Tetrimino : MonoBehaviour
 {
     public Block[] Blocks { get; private set; }
     public Action<Block[]> OnLand { get; set; }
+    public Func<List<Data.BlockPosition>, bool> OnRotateChecked { get; set; }
 
     public abstract Data.BlockType BlockType { get; }
 
     protected abstract Vector3 StandbyPosition { get; }
     protected abstract Vector3 StartPosition { get; }
     protected abstract List<Block> BottomBlocks { get; }
+    protected Data.BlockRotation Rotation = Data.BlockRotation.Normal;
 
     private bool isLanded = false;
 
@@ -102,7 +104,7 @@ public abstract class Tetrimino : MonoBehaviour
     }
 
     // 下方向にある最も近くのオブジェクトまでの距離
-    protected float DistanceToBottomObject()
+    private float DistanceToBottomObject()
     {
         RaycastHit nearest = new RaycastHit();
         nearest.distance = Mathf.Infinity;
@@ -124,23 +126,6 @@ public abstract class Tetrimino : MonoBehaviour
         return nearest.distance;
     }
 
-    protected float DistanceToOtherObject(Data.DirectionX direction)
-    {
-        float nearest = Mathf.Infinity;
-
-        foreach (var block in Blocks)
-        {
-            var distance = block.DistanceToOtherBlock(direction);
-
-            if (distance > 0 && distance < nearest)
-            {
-                nearest = distance;
-            }
-        }
-
-        return nearest;
-    }
-
     // direction方向に接触しているか
     protected bool IsTouchingIn(Data.DirectionX direction)
     {
@@ -150,6 +135,41 @@ public abstract class Tetrimino : MonoBehaviour
         }
 
         return false;
+    }
+
+    // 回転できるかチェック．回転できるようなら回転を行う
+    protected void CheckAndRotate(Data.BlockRotation nextRot, Vector3[,] rotCoodinate)
+    {
+        // ブロックの移動先を取得
+        var idx = 0;
+        var positions = new List<Data.BlockPosition>();
+
+        foreach (var block in Blocks)
+        {
+            var diff = rotCoodinate[(int)nextRot, idx] - rotCoodinate[(int)Rotation, idx];
+            var position = new Data.BlockPosition(block.Position.x + (int)diff.x, block.Position.y + (int)diff.y);
+
+            positions.Add(position);
+
+            idx++;
+        }
+
+        // 回転できるか
+        var canRotate = OnRotateChecked(positions);
+
+        if (!canRotate) return;
+
+        // ブロックの位置を更新する
+        idx = 0;
+        foreach (var block in Blocks)
+        {
+            block.transform.localPosition = rotCoodinate[(int)nextRot, idx];
+            block.Position = positions[idx];
+
+            idx++;
+        }
+
+        Rotation = nextRot;
     }
 
     public abstract void Translate(Data.DirectionX direction);
