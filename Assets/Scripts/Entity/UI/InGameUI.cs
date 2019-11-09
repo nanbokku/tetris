@@ -40,6 +40,11 @@ public class InGameUI : MonoBehaviour, IObserver
         pauseBtn.onClick.AddListener(() => { OnPauseBtnClicked(); });
     }
 
+    public void Exit()
+    {
+        store.RemoveObserver(this);
+    }
+
     public void ValueChanged(object value)
     {
         var level = "LEVEL\n";

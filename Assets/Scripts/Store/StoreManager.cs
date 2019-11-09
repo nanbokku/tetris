@@ -15,5 +15,11 @@ namespace Store
 
         public BoardStore BoardStore { get; private set; }
         public ScoreStore ScoreStore { get; private set; }
+
+        public void Init()
+        {
+            BoardStore.Init();
+            ScoreStore.Init();
+        }
     }
 }

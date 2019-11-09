@@ -16,6 +16,11 @@ public class InGameUIController : MonoBehaviour
         gameUI = transform.Find("InGameUI").GetComponent<InGameUI>();
     }
 
+    public void Exit()
+    {
+        gameUI.Exit();
+    }
+
     public void Init(StoreManager store)
     {
         gameUI.Store = store.ScoreStore;

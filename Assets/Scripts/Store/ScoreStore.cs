@@ -54,6 +54,7 @@ namespace Store
         {
             level = 0;
             score = 0;
+            line = 0;
         }
     }
 }
